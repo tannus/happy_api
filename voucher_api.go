@@ -2,19 +2,19 @@ package main
 
 import (
 	"database/sql"
-    "encoding/json"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-    "strconv"
+	"strconv"
 	"time"
 
 	"github.com/go-jet/jet/v2/mysql"
 	_ "github.com/go-sql-driver/mysql"
     
-    "context"
-    "github.com/go-chi/chi/v5"
-    "github.com/go-chi/chi/v5/middleware"
+	"context"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 // VoucherProgram represents a voucher program in the database
@@ -169,8 +169,60 @@ func CreateVoucherProgram(db *sql.DB) http.HandlerFunc {
 
 func UpdateVoucherProgram(db *sql.DB) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
+        // Parse the request body into a VoucherProgram struct
+        var voucherProgram VoucherProgram
+        err := json.NewDecoder(r.Body).Decode(&voucherProgram)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+
+        // Get the voucher program ID from the URL parameter
+        id, err := strconv.Atoi(chi.URLParam(r, "id"))
+        if err != nil {
+            http.Error(w, "Invalid voucher program ID", http.StatusBadRequest)
+            return
+        }
+
+        // Build the SQL query using Jet SQL builder
+        updateBuilder := mysql.
+            Update("voucher_program").
+            Set(
+                mysql.Assign("start_date", voucherProgram.StartDate),
+                mysql.Assign("end_date", voucherProgram.EndDate),
+                mysql.Assign("max_products_per_voucher", voucherProgram.MaxProductsPerVoucher),
+                mysql.Assign("total_vouchers", voucherProgram.TotalVouchers),
+                mysql.Assign("updated_at", time.Now().Format(time.RFC3339)),
+            ).
+            Where(
+                mysql.Condition("voucher_program_id", "=", id),
+            )
+        query, args := updateBuilder.Build()
+
+        // Execute the SQL query
+        result, err := db.Exec(query, args...)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+
+        // Check if the voucher program was updated
+        rowsAffected, err := result.RowsAffected()
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusInternalServerError)
+            return
+        }
+        if rowsAffected == 0 {
+            http.Error(w, "Voucher program not found", http.StatusNotFound)
+            return
+        }
+
+        // Return a success message
+        w.WriteHeader(http.StatusOK)
+        fmt.Fprint(w, "Voucher program updated successfully")
     }
 }
+
 func DeleteVoucherProgram(db *sql.DB) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request){
     }
