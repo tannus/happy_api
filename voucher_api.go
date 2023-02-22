@@ -60,13 +60,13 @@ func main() {
 	defer db.Close()
 
 	r := chi.NewRouter()
-    //Setting base middleware stack
-    r.Use(middleware.Logger)
-    r.Use(middleware.Recoverer)
+	//Setting base middleware stack
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
 	r.Get("/", func(w http.ResponswWriter, r *http.Request){
         w.Write([]byte(""))
-    })
+	})
 
     // Define the routes and handlers for voucher programs
     r.Route("/voucher_programs", func(r chi.Router) {
@@ -85,7 +85,7 @@ func main() {
     })
 
 	// Define the routes and handlers for vouchers
-    r.Route("/voucher", func(r chi.Router) {    
+	r.Route("/voucher", func(r chi.Router) {    
         //CreateVoucherGivenVoucherProgram
         r.Post("/",CreateVoucherGivenVoucherProgram(db))
         //UpdateVoucher
