@@ -68,47 +68,47 @@ func main() {
         w.Write([]byte(""))
 	})
 
-    // Define the routes and handlers for voucher programs
-    r.Route("/voucher_programs", func(r chi.Router) {
-        //CreateVoucherProgram
-        r.Post("/", CreateVoucherProgram(db)) 
-        //UpdateVoucherProgram
-        r.Put("/{id}", UpdateVoucherProgram(db))
-        //DeleteVoucherProgram
-        r.Delete("/{id}", DeleteVoucherProgram(db))
-        //GetAllVoucherProgram
-        r.Get("/", GetAllVoucherProgram(db))
-        //GetAllActiveVoucherProgram
-        r.Get("/", GetAllActiveVoucherProgram(db))
-        //GetVoucherProgramById
-        r.Get("/{id}", GetVoucherProgramById(db))
-    })
+	// Define the routes and handlers for voucher programs
+	r.Route("/voucher_programs", func(r chi.Router) {
+		//CreateVoucherProgram
+		r.Post("/", CreateVoucherProgram(db)) 
+		//UpdateVoucherProgram
+		r.Put("/{id}", UpdateVoucherProgram(db))
+		//DeleteVoucherProgram
+		r.Delete("/{id}", DeleteVoucherProgram(db))
+		//GetAllVoucherProgram
+		r.Get("/", GetAllVoucherProgram(db))
+		//GetAllActiveVoucherProgram
+		r.Get("/", GetAllActiveVoucherProgram(db))
+		//GetVoucherProgramById
+		r.Get("/{id}", GetVoucherProgramById(db))
+	})
 
 	// Define the routes and handlers for vouchers
 	r.Route("/voucher", func(r chi.Router) {    
-        //CreateVoucherGivenVoucherProgram
-        r.Post("/",CreateVoucherGivenVoucherProgram(db))
-        //UpdateVoucher
-        r.Put("/{voucherCodeChar}", UpdateVoucher(db))
-        //DeleteVoucher
-        r.Delete("/{voucherCodeChar}", DeleteVoucher(db))
-        //DeleteAllUnclaimedVoucherGivenVoucherProgram
-        r.Delete("/unclaimed/{voucherProgramId}", DeleteAllUnclaimedVoucherGivenVoucherProgram(db))
-        //GetAllVoucherGivenVoucherProgram
-        r.Get("/{voucherProgramId}", GetAllVoucherGivenVoucherProgram(db))
-    })
+		//CreateVoucherGivenVoucherProgram
+		r.Post("/",CreateVoucherGivenVoucherProgram(db))
+		//UpdateVoucher
+		r.Put("/{voucherCodeChar}", UpdateVoucher(db))
+		//DeleteVoucher
+		r.Delete("/{voucherCodeChar}", DeleteVoucher(db))
+		//DeleteAllUnclaimedVoucherGivenVoucherProgram
+		r.Delete("/unclaimed/{voucherProgramId}", DeleteAllUnclaimedVoucherGivenVoucherProgram(db))
+		//GetAllVoucherGivenVoucherProgram
+		r.Get("/{voucherProgramId}", GetAllVoucherGivenVoucherProgram(db))
+	})
 
 	// Define the routes and handlers for voucher claims
-    r.Route("/voucher_claim", func(r chi.Router) {
-        //CreateVoucherClaim
-        r.Post("/", CreateVoucherClaim(db))
-        //UpdateVoucherClaim
-        r.Put("/{id}", UpdateVoucherClaim(db))
-        //DeleteVoucherClaim
-        r.Delete("/{id}", DeleteVoucherClaim(db))
-        //GetVoucherClaim
-        r.Get("/{id}", GetVoucherClaim(db))
-    })
+	r.Route("/voucher_claim", func(r chi.Router) {
+		//CreateVoucherClaim
+		r.Post("/", CreateVoucherClaim(db))
+		//UpdateVoucherClaim
+		r.Put("/{id}", UpdateVoucherClaim(db))
+		//DeleteVoucherClaim
+		r.Delete("/{id}", DeleteVoucherClaim(db))
+		//GetVoucherClaim
+		r.Get("/{id}", GetVoucherClaim(db))
+	})
 
 	err = http.ListenAndServe(":8080", r)
 	if err != nil {

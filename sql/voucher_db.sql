@@ -24,7 +24,7 @@ CREATE TABLE Voucher (
 );
 
 CREATE TABLE VoucherClaim (
-	voucher_claim_id INT NOT NULL
+	voucher_claim_id INT NOT NULL,
 	voucher_code_char VARCHAR(16) NOT NULL,
 	product_quantity INT NOT NULL,
 	recipient_email VARCHAR(50) NOT NULL,
