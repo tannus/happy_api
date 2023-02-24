@@ -9,45 +9,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/go-jet/jet/v2/mysql"
-	_ "github.com/go-sql-driver/mysql"
-    
+	. "./gen/voucher_db/table"
+	. "github.com/go-jet/jet/v2/mysql"
+
+	"./gen/voucher_db/model"
+
 	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
-
-// VoucherProgram represents a voucher program in the database
-type VoucherProgram struct {
-	VoucherProgramID      int       `json:"voucher_program_id"`
-	StartDate             time.Time `json:"start_date"`
-	EndDate               time.Time `json:"end_date"`
-	MaxProductsPerVoucher int       `json:"max_products_per_voucher"`
-	TotalVouchers         int       `json:"total_vouchers"`
-	CreatedAt             time.Time `json:"created_at"`
-	UpdatedAt             time.Time `json:"updated_at"`
-}
-
-// Voucher represents a voucher in the database
-type Voucher struct {
-	VoucherCodeChar string      `json:"voucher_code_char"`
-	VoucherProgram  int         `json:"voucher_program"`
-	EmailAddress    string      `json:"email_address"`
-	CreatedAt       time.Time   `json:"created_at"`
-	UpdatedAt       time.Time   `json:"updated_at"`
-}
-
-// VoucherClaim represents a voucher claim in the database
-type VoucherClaim struct {
-	VoucherClaimID   int        `json:"voucher_claim_id"`
-	VoucherCodeChar  string     `json:"voucher_code_char"`
-	ProductQuantity  int        `json:"product_quantity"`
-	RecipientEmail   string     `json:"recipient_email"`
-	RecipientName    string     `json:"recipient_name"`
-	Address          string     `json:"address"`
-	CreatedAt        time.Time  `json:"created_at"`
-	UpdatedAt        time.Time  `json:"updated_at"`
-}
 
 var db *sql.DB
 
@@ -128,28 +98,20 @@ func CreateVoucherProgram(db *sql.DB) http.HandlerFunc {
         }
 
         // Build the SQL query using Jet SQL builder
-        insertBuilder := mysql.
-            Insert("voucher_program").
-            Columns(
-                "start_date",
-                "end_date",
-                "max_products_per_voucher",
-                "total_vouchers",
-                "created_at",
-                "updated_at",
-            ).
-            Values(
-                voucherProgram.StartDate,
-                voucherProgram.EndDate,
-                voucherProgram.MaxProductsPerVoucher,
-                voucherProgram.TotalVouchers,
-                time.Now().Format(time.RFC3339),
-                time.Now().Format(time.RFC3339),
-            )
-        query, args := insertBuilder.Build()
+       	voucherProgramBuilder := model.Link{
+			StartDate:					voucherProgram.StartDate,
+			EndDate:					voucherProgram.EndDate,
+			MaxProductsPerVoucher:		voucherProgram.MaxProductsPerVoucher,
+			TotalVouchers:				voucherProgram.TotalVouchers,
+			CreatedAt:					time.Now().Format(time.RFC3339),
+			UpdatedAt:					time.Now().Format(time.RFC3339),
+		}
+
+		insertStmt := Link.INSERT(Link.StartDate, Link.EndDate, Link.MaxProductsPerVoucher, Link.TotalVouchers, Link.CreatedAt, Link.UpdatedAt).
+			MODEL(voucherProgramBuilder)
 
         // Execute the SQL query and get the new voucher program ID
-        result, err := db.Exec(query, args...)
+        result, err := insertStmt.Exec(db)
         if err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
@@ -185,22 +147,20 @@ func UpdateVoucherProgram(db *sql.DB) http.HandlerFunc {
         }
 
         // Build the SQL query using Jet SQL builder
-        updateBuilder := mysql.
-            Update("voucher_program").
-            Set(
-                mysql.Assign("start_date", voucherProgram.StartDate),
-                mysql.Assign("end_date", voucherProgram.EndDate),
-                mysql.Assign("max_products_per_voucher", voucherProgram.MaxProductsPerVoucher),
-                mysql.Assign("total_vouchers", voucherProgram.TotalVouchers),
-                mysql.Assign("updated_at", time.Now().Format(time.RFC3339)),
-            ).
-            Where(
-                mysql.Condition("voucher_program_id", "=", id),
-            )
-        query, args := updateBuilder.Build()
+        voucherProgramBuilder := model.Link{
+			StartDate:					voucherProgram.StartDate,
+			EndDate:					voucherProgram.EndDate,
+			MaxProductsPerVoucher:		voucherProgram.MaxProductsPerVoucher,
+			TotalVouchers:				voucherProgram.TotalVouchers,
+			UpdatedAt:					time.Now().Format(time.RFC3339),
+
+		}
+		updateStmt := Link.INSERT(Link.StartDate, Link.EndDate, Link.MaxProductsPerVoucher, Link.TotalVouchers, Link.CreatedAt, Link.UpdatedAt).
+			MODEL(voucherProgramBuilder).
+			WHERE(Link.VoucherProgramId.EQ(id))
 
         // Execute the SQL query
-        result, err := db.Exec(query, args...)
+        result, err := updateStmt.Exec(query, args...)
         if err != nil {
             http.Error(w, err.Error(), http.StatusInternalServerError)
             return
